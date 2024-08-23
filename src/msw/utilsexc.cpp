@@ -740,7 +740,14 @@ long wxExecute(const wxString& cmd, int flags, wxProcess *handler,
 
         si.hStdInput = pipeIn[wxPipe::Read];
         si.hStdOutput = pipeOut[wxPipe::Write];
+#define XY_HACK
+#if defined(XY_HACK)
+        // For XPP we want all stdout and stderr messages together
+        // in the same "bucket" to preserve the order of messages.
+        si.hStdError = si.hStdOutput;
+#else
         si.hStdError = pipeErr[wxPipe::Write];
+#endif
 
         // we must duplicate the handle to the write side of stdin pipe to make
         // it non inheritable: indeed, we must close the writing end of pipeIn

@@ -680,7 +680,14 @@ long wxExecute(char **argv, int flags, wxProcess *process,
         {
             if ( dup2(pipeIn[wxPipe::Read], STDIN_FILENO) == -1 ||
                  dup2(pipeOut[wxPipe::Write], STDOUT_FILENO) == -1 ||
+#define XY_HACK
+#if defined(XY_HACK)
+                 // For XPP we want all stdout and stderr messages together
+                 // in the same "bucket" to preserve the order of messages.
+                 dup2(pipeOut[wxPipe::Write], STDERR_FILENO) == -1 )
+#else
                  dup2(pipeErr[wxPipe::Write], STDERR_FILENO) == -1 )
+#endif
             {
                 wxLogSysError(_("Failed to redirect child process input/output"));
             }
